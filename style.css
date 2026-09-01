@@ -1,0 +1,352 @@
+
+/* =========================
+   BASIC RESET
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   BODY
+========================= */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #eaf0eb;
+    color: #222;
+    line-height: 1.6;
+}
+
+
+@keyframes popInLetter {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    text-align: center;
+    background-color: #bbb8bee8;
+    padding: 30px 20px;
+    border-bottom: 1px solid #ddd;
+    transition: 2s;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 5px;
+}
+
+header p {
+    color: #414246;
+    font-size: 16px;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+main {
+    width: 90%;
+    max-width: 1000px;
+    margin: 30px auto;
+}
+
+
+/* =========================
+   BALANCE SECTION
+========================= */
+
+.balance-section {
+    background-color: #ffffff;
+    text-align: center;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.balance-section h2 {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.balance-section h3 {
+    font-size: 36px;
+}
+
+
+/* =========================
+   SUMMARY SECTION
+========================= */
+
+.summary-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+
+/* Summary Cards */
+
+.summary-card {
+    background-color: #ffffff;
+    padding: 25px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.summary-card h3 {
+    font-size: 17px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.summary-card p {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   TRANSACTION FORM
+========================= */
+
+.transaction-form-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.transaction-form-section h2 {
+    margin-bottom: 20px;
+}
+
+
+/* Form */
+
+#transaction-form {
+    display: grid;
+    gap: 15px;
+}
+
+
+/* Form Group */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+
+/* Input and Select */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+}
+
+
+/* Input Focus */
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #555;
+}
+
+
+/* Submit Button */
+
+#transaction-form button {
+    padding: 12px;
+    background-color: #222;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+/* Button Hover */
+
+#transaction-form button:hover {
+    background-color: #444;
+}
+
+
+/* =========================
+   TRANSACTION HISTORY
+========================= */
+
+.history-section {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.history-section h2 {
+    margin-bottom: 20px;
+}
+
+
+/* Transaction List */
+
+.transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+/* Individual Transaction */
+
+.transaction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+
+/* Transaction Information */
+
+.transaction h3 {
+    font-size: 17px;
+    margin-bottom: 3px;
+}
+
+.transaction p {
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* Transaction Amount */
+
+.transaction span {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+
+/* Delete Button */
+
+.transaction button {
+    padding: 7px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+}
+
+.transaction button:hover {
+    background-color: #222;
+}
+
+
+/* No Transactions Message */
+
+#no-transactions {
+    text-align: center;
+    color: #777;
+    padding: 20px;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    font-size: 14px;
+}
+
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+/* Tablet */
+
+@media (max-width: 768px) {
+
+    .summary-section {
+        grid-template-columns: 1fr;
+    }
+
+    .balance-section h3 {
+        font-size: 30px;
+    }
+
+    main {
+        width: 94%;
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 500px) {
+
+    header h1 {
+        font-size: 26px;
+    }
+
+    main {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    .balance-section,
+    .transaction-form-section,
+    .history-section {
+        padding: 20px;
+    }
+
+    .transaction {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .transaction span {
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+}
