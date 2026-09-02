@@ -4,7 +4,7 @@
 ========================= */
 
 * {
-    margin: 0;
+    margin: 10;
     padding: 0;
     box-sizing: border-box;
 }
@@ -15,7 +15,7 @@
 ========================= */
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #eaf0eb;
     color: #222;
     line-height: 1.6;
@@ -39,7 +39,7 @@ header {
     background-color: #ccc5d3e8;
     padding: 30px 20px;
     border-bottom: 1px solid #ddd;
-    transition: 2s;
+    transition: s;
 }
 
 header h1 {
@@ -108,6 +108,12 @@ main {
     text-align: center;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
 .summary-card h3 {
