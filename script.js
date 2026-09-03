@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const incomeEl = document.getElementById('total-income');
     const expensesEl = document.getElementById('total-expenses');
     const remainingEl = document.getElementById('remaining-balance');
+    const totalTxnsEl = document.getElementById('total-transactions');
 
 
 
@@ -34,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
         incomeEl.textContent = formatCurrency(income);
         expensesEl.textContent = formatCurrency(expenses);
         remainingEl.textContent = formatCurrency(balance);
+        
+        if (totalTxnsEl) {
+            totalTxnsEl.textContent = txns.length;
+        }
     }
 
     function renderTransactions() {
@@ -48,27 +53,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const el = document.createElement('div');
             el.className = 'transaction';
 
-            const left = document.createElement('div');
-            const title = document.createElement('h3');
+            const title = document.createElement('div');
+            title.className = 'col-desc font-medium';
             title.textContent = t.description;
-            const dt = document.createElement('p');
-            dt.textContent = new Date(t.date).toLocaleDateString();
-            left.appendChild(title);
-            left.appendChild(dt);
 
-            const right = document.createElement('div');
-            const amt = document.createElement('span');
+            const dt = document.createElement('div');
+            dt.className = 'col-date text-gray';
+            dt.textContent = new Date(t.date).toLocaleDateString();
+
+            const amt = document.createElement('div');
+            amt.className = 'col-amount font-medium';
             amt.textContent = (t.type === 'income' ? '+ ' : '- ') + formatCurrency(t.amount);
-            amt.style.color = t.type === 'income' ? 'green' : 'red';
+            amt.style.color = t.type === 'income' ? '#10b981' : '#ef4444'; 
+            
+            const delWrap = document.createElement('div');
+            delWrap.className = 'col-action';
             const del = document.createElement('button');
             del.textContent = 'Delete';
+            del.className = 'btn-delete';
             del.dataset.id = t.id;
             del.addEventListener('click', () => deleteTransaction(t.id));
-            right.appendChild(amt);
-            right.appendChild(del);
+            delWrap.appendChild(del);
 
-            el.appendChild(left);
-            el.appendChild(right);
+            el.appendChild(title);
+            el.appendChild(dt);
+            el.appendChild(amt);
+            el.appendChild(delWrap);
+
             transactionList.appendChild(el);
         });
         updateSummary();
