@@ -12,6 +12,148 @@ document.addEventListener('DOMContentLoaded', () => {
     const remainingEl = document.getElementById('remaining-balance');
     const totalTxnsEl = document.getElementById('total-transactions');
 
+    const canvas = document.getElementById('balance-chart');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    let animationId = null;
+
+    const getStartedBtn = document.getElementById('get-started-btn');
+    const landingView = document.getElementById('landing-view');
+    const dashboardView = document.getElementById('dashboard-view');
+
+    if (getStartedBtn) {
+        getStartedBtn.addEventListener('click', () => {
+            // Button click effect
+            getStartedBtn.style.transform = 'scale(0.95)';
+            
+            // Trigger landing page exit animation
+            landingView.classList.add('landing-exit');
+            
+            setTimeout(() => {
+                landingView.style.display = 'none';
+                
+                // Prepare dashboard for staggered entrance
+                dashboardView.style.display = 'block';
+                dashboardView.classList.add('dashboard-ready');
+                
+                // Trigger staggered entrance after a tiny frame
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        dashboardView.classList.add('dashboard-enter');
+                        
+                        // Wait for chart section to enter (delay 0.6s) before drawing chart
+                        setTimeout(() => {
+                            drawChart(true);
+                        }, 600);
+                    });
+                });
+            }, 500); // Wait for landing exit
+        });
+    }
+
+    function drawChart(animate = false) {
+        if (!canvas || !ctx) return;
+
+        const container = canvas.parentElement;
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        const txns = getTransactions().slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        let balances = [0];
+        let current = 0;
+        let minBalance = 0;
+        let maxBalance = 0;
+
+        const segments = [];
+
+        txns.forEach(t => {
+            if (t.type === 'income') {
+                current += Number(t.amount);
+            } else {
+                current -= Number(t.amount);
+            }
+            balances.push(current);
+            if (current < minBalance) minBalance = current;
+            if (current > maxBalance) maxBalance = current;
+        });
+
+        let range = maxBalance - minBalance;
+        if (range === 0) range = 100;
+
+        const paddingX = 10;
+        const paddingY = 20;
+        const drawWidth = canvas.width - paddingX * 2;
+        const drawHeight = canvas.height - paddingY * 2;
+
+        const getX = (index) => paddingX + (txns.length === 0 ? drawWidth / 2 : (index / Math.max(1, txns.length)) * drawWidth);
+        const getY = (val) => paddingY + drawHeight - ((val - minBalance) / range) * drawHeight;
+
+        for (let i = 0; i < txns.length; i++) {
+            segments.push({
+                x1: getX(i),
+                y1: getY(balances[i]),
+                x2: getX(i + 1),
+                y2: getY(balances[i + 1]),
+                type: txns[i].type
+            });
+        }
+
+        let progress = animate ? 0 : 1;
+        if (animationId) cancelAnimationFrame(animationId);
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (minBalance < 0 && maxBalance > 0) {
+                const zeroY = getY(0);
+                ctx.beginPath();
+                ctx.moveTo(paddingX, zeroY);
+                ctx.lineTo(canvas.width - paddingX, zeroY);
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            const totalSegments = segments.length;
+            const visibleSegments = progress * totalSegments;
+
+            for (let i = 0; i < totalSegments; i++) {
+                if (i >= Math.ceil(visibleSegments)) break;
+
+                const seg = segments[i];
+                ctx.beginPath();
+                ctx.moveTo(seg.x1, seg.y1);
+
+                let endX = seg.x2;
+                let endY = seg.y2;
+
+                if (i === Math.floor(visibleSegments) && visibleSegments < totalSegments) {
+                    const fraction = visibleSegments - i;
+                    endX = seg.x1 + (seg.x2 - seg.x1) * fraction;
+                    endY = seg.y1 + (seg.y2 - seg.y1) * fraction;
+                }
+
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = seg.type === 'income' ? '#10b981' : '#ef4444';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+            }
+
+            if (progress < 1) {
+                progress += 0.015;
+                if (progress > 1) progress = 1;
+                animationId = requestAnimationFrame(render);
+            }
+        }
+
+        render();
+    }
+
+    window.addEventListener('resize', () => drawChart(false));
+
 
 
     function getTransactions() {
@@ -41,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderTransactions() {
+    function renderTransactions(animate = false) {
         const txns = getTransactions();
         transactionList.querySelectorAll('.transaction').forEach(n => n.remove());
         if (!txns || txns.length === 0) {
@@ -83,19 +225,20 @@ document.addEventListener('DOMContentLoaded', () => {
             transactionList.appendChild(el);
         });
         updateSummary();
+        drawChart(animate);
     }
 
     function addTransaction(tx) {
         const txns = getTransactions();
         txns.push(tx);
         saveTransactions(txns);
-        renderTransactions();
+        renderTransactions(true);
     }
 
     function deleteTransaction(id) {
         const txns = getTransactions().filter(t => t.id !== id);
         saveTransactions(txns);
-        renderTransactions();
+        renderTransactions(false);
     }
 
     form.addEventListener('submit', e => {
@@ -121,5 +264,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (!localStorage.getItem('transactions')) saveTransactions([]);
-    renderTransactions();
+    renderTransactions(true);
 });
