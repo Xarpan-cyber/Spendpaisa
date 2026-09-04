@@ -21,161 +21,213 @@
 
 
     <!-- =========================
+         LANDING PAGE
+    ========================== -->
+    <div id="landing-view">
+        <header class="landing-header">
+            <h1>💸 SpendPaisa</h1>
+            <p>Manage your income and expenses easily</p>
+        </header>
+        <div class="hero-section">
+            <h1 class="hero-title">Take Control of Your Money</h1>
+            <p class="hero-desc">The simplest way to track your personal expenses, visualize your cash flow, and stay on
+                top of your budget.</p>
+            <button id="get-started-btn" class="btn-get-started">Get Started</button>
+        </div>
+    </div>
+
+    <!-- =========================
+         DASHBOARD APP
+    ========================== -->
+    <div id="dashboard-view" style="display: none;">
+
+        <!-- =========================
          HEADER
     ========================== -->
-    <header>
-        <h1>💸 SpendPaisa</h1>
-        <p>Manage your income and expenses easily</p>
-    </header>
+        <header>
+            <h1>💸 SpendPaisa</h1>
+            <p>Manage your income and expenses easily</p>
+        </header>
 
-    <!-- =========================
+        <!-- =========================
          MAIN CONTENT
     ========================== -->
-    <main class="dashboard-container">
+        <main class="dashboard-container">
 
-        <!-- =========================
+            <!-- =========================
              SIDEBAR
         ========================== -->
-        <aside class="sidebar">
+            <aside class="sidebar">
 
-            <!-- =========================
+                <!-- =========================
                  BALANCE SECTION
             ========================== -->
-            <section class="balance-section">
-                <h2>💰 Current Balance</h2>
-                <h3 id="balance">₹0.00</h3>
-            </section>
+                <section class="balance-section">
+                    <h2>💰 Current Balance</h2>
+                    <h3 id="balance">₹0.00</h3>
+                </section>
 
-            <!-- =========================
+                <!-- =========================
                  ADD TRANSACTION SECTION
             ========================== -->
-            <section class="transaction-form-section">
-                <h2>➕ Add Transaction</h2>
-                <form id="transaction-form">
+                <section class="transaction-form-section">
+                    <h2>➕ Add Transaction</h2>
+                    <form id="transaction-form">
 
-                    <!-- Transaction Type -->
-                    <div class="form-group">
-                        <label for="transaction-type"> Transaction Type </label>
-                        <select id="transaction-type" name="transaction-type">
-                            <option value="income">Income</option>
-                            <option value="expense">Expense</option>
-                        </select>
-                    </div>
+                        <!-- Transaction Type -->
+                        <div class="form-group">
+                            <label for="transaction-type"> Transaction Type </label>
+                            <select id="transaction-type" name="transaction-type">
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
 
-                    <!-- Description -->
-                    <div class="form-group">
-                        <label for="description"> Description </label>
-                        <input type="text" id="description" name="description" placeholder="e.g. Salary, Food, Travel"
-                            required>
-                    </div>
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description"> Description </label>
+                            <input type="text" id="description" name="description"
+                                placeholder="e.g. Salary, Food, Travel" required>
+                        </div>
 
-                    <!-- Amount -->
-                    <div class="form-group">
-                        <label for="amount"> Amount</label>
-                        <input type="number" id="amount" name="amount" placeholder="Enter amount" min="0" step="0.01"
-                            required>
-                    </div>
+                        <!-- Amount -->
+                        <div class="form-group">
+                            <label for="amount"> Amount</label>
+                            <input type="number" id="amount" name="amount" placeholder="Enter amount" min="0"
+                                step="0.01" required>
+                        </div>
 
-                    <!-- Date -->
-                    <div class="form-group">
-                        <label for="date"> Date</label>
-                        <input type="date" id="date" name="date" required>
-                    </div>
+                        <!-- Date -->
+                        <div class="form-group">
+                            <label for="date"> Date</label>
+                            <input type="date" id="date" name="date" required>
+                        </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit"> Add Transaction </button>
-                </form>
-            </section>
-        </aside>
+                        <!-- Submit Button -->
+                        <button type="submit"> Add Transaction </button>
+                    </form>
+                </section>
+            </aside>
 
-        <!-- =========================
+            <!-- =========================
              MAIN CONTENT
         ========================== -->
-        <div class="main-content">
+            <div class="main-content">
 
-            <!-- =========================
+                <!-- =========================
+                 CHART SECTION
+            ========================== -->
+                <section class="chart-section">
+                    <div class="chart-header">
+                        <h2>📈 Cash Flow Graph</h2>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="balance-chart"></canvas>
+                    </div>
+                </section>
+
+                <!-- =========================
                  SUMMARY SECTION
             ========================== -->
-            <section class="summary-section">
-                <!-- Total Transactions -->
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <h3>Total Transactions</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5"/></svg>
+                <section class="summary-section">
+                    <!-- Total Transactions -->
+                    <div class="summary-card">
+                        <div class="summary-card-header">
+                            <h3>Total Transactions</h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5" />
+                            </svg>
+                        </div>
+                        <p id="total-transactions" class="text-black">_</p>
                     </div>
-                    <p id="total-transactions" class="text-black">_</p>
-                </div>
 
-                <!-- Total Income -->
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <h3>Total Income</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                    <!-- Total Income -->
+                    <div class="summary-card">
+                        <div class="summary-card-header">
+                            <h3>Total Income</h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                <polyline points="16 7 22 7 22 13"></polyline>
+                            </svg>
+                        </div>
+                        <p id="total-income" class="text-green">₹0.00</p>
                     </div>
-                    <p id="total-income" class="text-green">₹0.00</p>
-                </div>
 
-                <!-- Total Expenses -->
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <h3>Total Expenses</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+                    <!-- Total Expenses -->
+                    <div class="summary-card">
+                        <div class="summary-card-header">
+                            <h3>Total Expenses</h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline>
+                                <polyline points="16 17 22 17 22 11"></polyline>
+                            </svg>
+                        </div>
+                        <p id="total-expenses" class="text-red">₹0.00</p>
                     </div>
-                    <p id="total-expenses" class="text-red">₹0.00</p>
-                </div>
 
-                <!-- Remaining Balance -->
-                <div class="summary-card">
-                    <div class="summary-card-header">
-                        <h3>Net Cash Flow</h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5"/></svg>
+                    <!-- Remaining Balance -->
+                    <div class="summary-card">
+                        <div class="summary-card-header">
+                            <h3>Net Cash Flow</h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5" />
+                            </svg>
+                        </div>
+                        <p id="remaining-balance" class="text-green">₹0.00</p>
                     </div>
-                    <p id="remaining-balance" class="text-green">₹0.00</p>
-                </div>
 
-            </section>
+                </section>
 
-            <!-- =========================
+                <!-- =========================
                  TRANSACTION HISTORY
             ========================== -->
-            <section class="history-section">
+                <section class="history-section">
 
-                <div class="history-header">
-                    <h2>📜 Transaction History</h2>
-                </div>
-
-                <!-- Transaction List -->
-                <div class="transaction-list" id="transaction-list">
-
-                    <div class="transaction-header">
-                        <div class="col-desc">Description</div>
-                        <div class="col-date">Date</div>
-                        <div class="col-amount">Amount</div>
-                        <div class="col-action">Action</div>
+                    <div class="history-header">
+                        <h2>📜 Transaction History</h2>
                     </div>
 
-                    <p id="no-transactions">
-                        No transactions added yet.
-                    </p>
+                    <!-- Transaction List -->
+                    <div class="transaction-list" id="transaction-list">
 
-                </div>
+                        <div class="transaction-header">
+                            <div class="col-desc">Description</div>
+                            <div class="col-date">Date</div>
+                            <div class="col-amount">Amount</div>
+                            <div class="col-action">Action</div>
+                        </div>
 
-            </section>
-        </div>
+                        <p id="no-transactions">
+                            No transactions added yet.
+                        </p>
 
-    </main>
+                    </div>
+
+                </section>
+            </div>
+
+        </main>
 
 
-    <!-- =========================
+        <!-- =========================
          FOOTER
     ========================== -->
-    <footer>
+        <footer>
 
-        <p>
-            &copy; 2026 Expense Tracker
-        </p>
+            <p>
+                &copy; 2026 Expense Tracker
+            </p>
 
-    </footer>
+        </footer>
+    </div>
 
 
     <!-- JavaScript file -->
