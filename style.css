@@ -88,6 +88,34 @@ header p {
 }
 
 /* SUMMARY SECTION */
+.chart-section {
+    padding: 25px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-header {
+    margin-bottom: 20px;
+}
+
+.chart-header h2 {
+    font-size: 16px;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 250px;
+    position: relative;
+}
+
+canvas#balance-chart {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* SUMMARY SECTION */
 .summary-section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -303,4 +331,132 @@ footer {
         grid-row: 1 / 2;
         justify-self: end;
     }
+}
+
+/* =========================
+   LANDING PAGE
+========================= */
+#landing-view {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafbfc;
+}
+
+.landing-header {
+    background: none;
+    border-bottom: none;
+    justify-content: flex-start;
+    padding: 30px 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.landing-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111;
+}
+
+.landing-header p {
+    color: #666;
+    font-size: 14px;
+    margin-left: 20px;
+}
+
+.hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 20px;
+}
+
+.hero-desc {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+.btn-get-started {
+    background-color: #111;
+    color: #fff;
+    border: none;
+    padding: 15px 40px;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-get-started:hover {
+    background-color: #333;
+    transform: scale(1.05);
+}
+
+.btn-get-started:active {
+    transform: scale(0.95);
+}
+
+/* =========================
+   MODERN WOW TRANSITION
+========================= */
+
+/* Landing Page Exit */
+.landing-exit {
+    animation: landingExit 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes landingExit {
+    0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-30px) scale(0.95); filter: blur(10px); }
+}
+
+/* Dashboard Ready State (Hidden before animation) */
+.dashboard-ready .sidebar,
+.dashboard-ready .chart-section,
+.dashboard-ready .summary-card,
+.dashboard-ready .history-section {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+}
+
+/* Dashboard Staggered Entrance */
+.dashboard-enter .sidebar {
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.1s;
+}
+
+.dashboard-enter .summary-card:nth-child(1) { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; }
+.dashboard-enter .summary-card:nth-child(2) { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.3s; }
+.dashboard-enter .summary-card:nth-child(3) { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.4s; }
+.dashboard-enter .summary-card:nth-child(4) { animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.5s; }
+
+.dashboard-enter .chart-section {
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.6s;
+}
+
+.dashboard-enter .history-section {
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.7s;
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(5px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
