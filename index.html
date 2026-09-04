@@ -8,12 +8,13 @@
     <title>SpendPaisa</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- CSS file -->
-     <link rel="stylesheet" href="style.css">
-   
-     
+    <link rel="stylesheet" href="style.css">
+
+
 </head>
 
 <body>
@@ -36,7 +37,7 @@
              SIDEBAR
         ========================== -->
         <aside class="sidebar">
-            
+
             <!-- =========================
                  BALANCE SECTION
             ========================== -->
@@ -51,7 +52,7 @@
             <section class="transaction-form-section">
                 <h2>➕ Add Transaction</h2>
                 <form id="transaction-form">
-                    
+
                     <!-- Transaction Type -->
                     <div class="form-group">
                         <label for="transaction-type"> Transaction Type </label>
@@ -64,13 +65,15 @@
                     <!-- Description -->
                     <div class="form-group">
                         <label for="description"> Description </label>
-                        <input type="text" id="description" name="description" placeholder="e.g. Salary, Food, Travel" required>
+                        <input type="text" id="description" name="description" placeholder="e.g. Salary, Food, Travel"
+                            required>
                     </div>
 
                     <!-- Amount -->
                     <div class="form-group">
                         <label for="amount"> Amount</label>
-                        <input type="number" id="amount" name="amount" placeholder="Enter amount" min="0" step="0.01" required>
+                        <input type="number" id="amount" name="amount" placeholder="Enter amount" min="0" step="0.01"
+                            required>
                     </div>
 
                     <!-- Date -->
@@ -89,32 +92,44 @@
              MAIN CONTENT
         ========================== -->
         <div class="main-content">
-            
+
             <!-- =========================
                  SUMMARY SECTION
             ========================== -->
             <section class="summary-section">
-                       <!-- Total Transactions -->
+                <!-- Total Transactions -->
                 <div class="summary-card">
-                    <h3>Total Transactions</h3>
+                    <div class="summary-card-header">
+                        <h3>Total Transactions</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5"/></svg>
+                    </div>
                     <p id="total-transactions" class="text-black">_</p>
                 </div>
-                
+
                 <!-- Total Income -->
                 <div class="summary-card">
-                    <h3>Total Income</h3>
+                    <div class="summary-card-header">
+                        <h3>Total Income</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                    </div>
                     <p id="total-income" class="text-green">₹0.00</p>
                 </div>
 
                 <!-- Total Expenses -->
                 <div class="summary-card">
-                    <h3>Total Expenses</h3>
+                    <div class="summary-card-header">
+                        <h3>Total Expenses</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+                    </div>
                     <p id="total-expenses" class="text-red">₹0.00</p>
                 </div>
 
                 <!-- Remaining Balance -->
                 <div class="summary-card">
-                    <h3>Net Cash Flow</h3>
+                    <div class="summary-card-header">
+                        <h3>Net Cash Flow</h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20V4m-4 5l4-5 4 5M15 4v16m-4-5l4 5 4-5"/></svg>
+                    </div>
                     <p id="remaining-balance" class="text-green">₹0.00</p>
                 </div>
 
@@ -124,14 +139,14 @@
                  TRANSACTION HISTORY
             ========================== -->
             <section class="history-section">
-                
+
                 <div class="history-header">
                     <h2>📜 Transaction History</h2>
                 </div>
 
                 <!-- Transaction List -->
                 <div class="transaction-list" id="transaction-list">
-                    
+
                     <div class="transaction-header">
                         <div class="col-desc">Description</div>
                         <div class="col-date">Date</div>

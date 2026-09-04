@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         incomeEl.textContent = formatCurrency(income);
         expensesEl.textContent = formatCurrency(expenses);
         remainingEl.textContent = formatCurrency(balance);
-        
+
         if (totalTxnsEl) {
             totalTxnsEl.textContent = txns.length;
         }
@@ -64,8 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const amt = document.createElement('div');
             amt.className = 'col-amount font-medium';
             amt.textContent = (t.type === 'income' ? '+ ' : '- ') + formatCurrency(t.amount);
-            amt.style.color = t.type === 'income' ? '#10b981' : '#ef4444'; 
-            
+            amt.style.color = t.type === 'income' ? '#10b981' : '#ef4444';
+
             const delWrap = document.createElement('div');
             delWrap.className = 'col-action';
             const del = document.createElement('button');
