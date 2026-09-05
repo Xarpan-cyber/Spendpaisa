@@ -26,6 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const landingView = document.getElementById('landing-view');
     const dashboardView = document.getElementById('dashboard-view');
 
+    let chartDateRange = '7d';
+    const toggles = document.querySelectorAll('.chart-toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            toggles.forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            chartDateRange = e.target.dataset.range;
+            drawChart(true);
+        });
+    });
+
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', () => {
             // Button click effect
@@ -65,8 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        // Use exact insertion order to match the list exactly
-        const txns = getTransactions().slice();
+        // Filter by date range
+        let allTxns = getTransactions().slice();
+        let txns = [];
+        if (chartDateRange === 'all') {
+            txns = allTxns;
+        } else {
+            const now = new Date();
+            let limitDate = new Date();
+            if (chartDateRange === '7d') limitDate.setDate(now.getDate() - 7);
+            else if (chartDateRange === '1m') limitDate.setMonth(now.getMonth() - 1);
+            else if (chartDateRange === '3m') limitDate.setMonth(now.getMonth() - 3);
+            else if (chartDateRange === '1y') limitDate.setFullYear(now.getFullYear() - 1);
+            
+            txns = allTxns.filter(t => new Date(t.date) >= limitDate);
+        }
 
         let balances = [0];
         let current = 0;
@@ -89,13 +113,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let range = maxBalance - minBalance;
         if (range === 0) range = 100;
 
-        const paddingX = 10;
-        const paddingY = 20;
-        const drawWidth = canvas.width - paddingX * 2;
-        const drawHeight = canvas.height - paddingY * 2;
+        const paddingLeft = 50;
+        const paddingRight = 20;
+        const paddingTop = 20;
+        const paddingBottom = 30;
+        const drawWidth = canvas.width - paddingLeft - paddingRight;
+        const drawHeight = canvas.height - paddingTop - paddingBottom;
 
-        const getX = (index) => paddingX + (txns.length === 0 ? drawWidth / 2 : (index / Math.max(1, txns.length)) * drawWidth);
-        const getY = (val) => paddingY + drawHeight - ((val - minBalance) / range) * drawHeight;
+        const getX = (index) => paddingLeft + (txns.length === 0 ? drawWidth / 2 : (index / Math.max(1, txns.length)) * drawWidth);
+        const getY = (val) => paddingTop + drawHeight - ((val - minBalance) / range) * drawHeight;
 
         for (let i = 0; i < txns.length; i++) {
             segments.push({
@@ -113,12 +139,47 @@ document.addEventListener('DOMContentLoaded', () => {
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Draw Y-Axis gridlines and labels
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '10px Inter, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const steps = 4;
+            for (let i = 0; i <= steps; i++) {
+                const val = minBalance + (range * i) / steps;
+                const y = getY(val);
+                
+                // gridline
+                ctx.beginPath();
+                ctx.moveTo(paddingLeft - 5, y);
+                ctx.lineTo(canvas.width - paddingRight, y);
+                ctx.strokeStyle = '#f3f4f6';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // label
+                ctx.fillText('₹' + Math.round(val).toLocaleString(), paddingLeft - 10, y);
+            }
+
+            // Draw X-Axis labels (dates)
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            if (txns.length > 0) {
+                // start date
+                ctx.fillText(new Date(txns[0].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(0), canvas.height - paddingBottom + 10);
+                // end date
+                if (txns.length > 1) {
+                    ctx.fillText(new Date(txns[txns.length-1].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(txns.length), canvas.height - paddingBottom + 10);
+                }
+            }
+
             // Draw zero line if balance crosses 0
             if (minBalance < 0 && maxBalance > 0) {
                 const zeroY = getY(0);
                 ctx.beginPath();
-                ctx.moveTo(paddingX, zeroY);
-                ctx.lineTo(canvas.width - paddingX, zeroY);
+                ctx.moveTo(paddingLeft, zeroY);
+                ctx.lineTo(canvas.width - paddingRight, zeroY);
                 ctx.strokeStyle = '#e5e7eb';
                 ctx.lineWidth = 1;
                 ctx.stroke();
@@ -130,10 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Create a hard-stop gradient for sharp, perfect color transitions
                 const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                const areaGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
                 
                 for (let i = 0; i < totalSegments; i++) {
                     const seg = segments[i];
                     const color = seg.type === 'income' ? '#10b981' : '#ef4444';
+                    const areaColor = seg.type === 'income' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
                     
                     let startRatio = seg.x1 / canvas.width;
                     let endRatio = seg.x2 / canvas.width;
@@ -143,10 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     grad.addColorStop(startRatio, color);
                     grad.addColorStop(endRatio, color);
+
+                    areaGrad.addColorStop(startRatio, areaColor);
+                    areaGrad.addColorStop(endRatio, areaColor);
                 }
 
+                // 1. Draw Area Fill
                 ctx.beginPath();
-                ctx.moveTo(segments[0].x1, segments[0].y1);
+                ctx.moveTo(segments[0].x1, canvas.height);
+                ctx.lineTo(segments[0].x1, segments[0].y1);
+
+                let lastX = segments[0].x1;
+                let lastY = segments[0].y1;
 
                 for (let i = 0; i < totalSegments; i++) {
                     if (i >= Math.ceil(visibleSegments)) break;
@@ -155,7 +226,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     let endX = seg.x2;
                     let endY = seg.y2;
 
-                    // Interpolate the final visible segment during animation
+                    if (i === Math.floor(visibleSegments) && visibleSegments < totalSegments) {
+                        const fraction = visibleSegments - i;
+                        endX = seg.x1 + (seg.x2 - seg.x1) * fraction;
+                        endY = seg.y1 + (seg.y2 - seg.y1) * fraction;
+                    }
+
+                    ctx.lineTo(endX, endY);
+                    lastX = endX;
+                    lastY = endY;
+                }
+
+                ctx.lineTo(lastX, canvas.height);
+                ctx.closePath();
+                ctx.fillStyle = areaGrad;
+                ctx.shadowColor = 'transparent';
+                ctx.fill();
+
+                // 2. Draw the main stroke with shadow
+                ctx.beginPath();
+                ctx.moveTo(segments[0].x1, segments[0].y1);
+                
+                for (let i = 0; i < totalSegments; i++) {
+                    if (i >= Math.ceil(visibleSegments)) break;
+                    
+                    const seg = segments[i];
+                    let endX = seg.x2;
+                    let endY = seg.y2;
+
                     if (i === Math.floor(visibleSegments) && visibleSegments < totalSegments) {
                         const fraction = visibleSegments - i;
                         endX = seg.x1 + (seg.x2 - seg.x1) * fraction;
@@ -167,9 +265,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 ctx.strokeStyle = grad;
                 ctx.lineWidth = 3;
-                ctx.lineJoin = 'miter'; 
+                ctx.lineJoin = 'round'; 
                 ctx.lineCap = 'round';
+                
+                // Add glow effect
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetY = 4;
                 ctx.stroke();
+
+                // 3. Draw Data Points (nodes)
+                ctx.shadowColor = 'transparent';
+                
+                const drawPoint = (x, y, type) => {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.strokeStyle = type === 'income' ? '#10b981' : '#ef4444';
+                    ctx.lineWidth = 2;
+                    ctx.fill();
+                    ctx.stroke();
+                };
+
+                // Draw initial point
+                if (visibleSegments > 0) {
+                    drawPoint(segments[0].x1, segments[0].y1, 'income');
+                }
+
+                for (let i = 0; i < totalSegments; i++) {
+                    if (i + 1 <= visibleSegments) {
+                        drawPoint(segments[i].x2, segments[i].y2, segments[i].type);
+                    }
+                }
             }
 
             if (progress < 1) {
@@ -178,6 +305,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 animationId = requestAnimationFrame(render);
             }
         }
+
+        // Setup tooltip interaction
+        canvas.onmousemove = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            
+            // Find closest point
+            let closest = null;
+            let minDist = Infinity;
+            
+            const allPoints = [];
+            if (segments.length > 0) {
+                allPoints.push({ x: segments[0].x1, y: segments[0].y1, val: balances[0], date: txns.length > 0 ? txns[0].date : '' });
+                for(let i=0; i<segments.length; i++) {
+                    allPoints.push({ x: segments[i].x2, y: segments[i].y2, val: balances[i+1], date: txns[i].date });
+                }
+            }
+
+            for (const pt of allPoints) {
+                const dist = Math.abs(mouseX - pt.x);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = pt;
+                }
+            }
+
+            const tooltip = document.getElementById('chart-tooltip');
+            if (tooltip && closest && minDist < 30) {
+                tooltip.style.opacity = '1';
+                tooltip.style.left = closest.x + 'px';
+                tooltip.style.top = closest.y + 'px';
+                const dateStr = closest.date ? new Date(closest.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}) : 'Start';
+                tooltip.innerHTML = `<div>${dateStr}</div><div style="font-weight:600; font-size:15px; margin-top:2px;">₹${closest.val.toLocaleString()}</div>`;
+            } else if (tooltip) {
+                tooltip.style.opacity = '0';
+            }
+        };
+
+        canvas.onmouseleave = () => {
+            const tooltip = document.getElementById('chart-tooltip');
+            if (tooltip) tooltip.style.opacity = '0';
+        };
 
         render();
     }
@@ -210,6 +379,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (totalTxnsEl) {
             totalTxnsEl.textContent = txns.length;
+        }
+
+        const txnsChart = document.getElementById('mini-chart-txns');
+        const incomeChart = document.getElementById('mini-chart-income');
+        const expensesChart = document.getElementById('mini-chart-expenses');
+        const balanceChart = document.getElementById('mini-chart-balance');
+
+        if (txnsChart) txnsChart.style.background = `conic-gradient(#6b7280 100%, #eaeaea 0)`;
+        
+        if (incomeChart) incomeChart.style.background = `conic-gradient(#10b981 100%, #eaeaea 0)`;
+
+        if (expensesChart) {
+            let pct = income > 0 ? Math.min(100, Math.round((expenses / income) * 100)) : 0;
+            expensesChart.style.background = `conic-gradient(#ef4444 ${pct}%, #eaeaea 0)`;
+        }
+
+        if (balanceChart) {
+            let pct = income > 0 ? Math.max(0, Math.min(100, Math.round((balance / income) * 100))) : 0;
+            balanceChart.style.background = `conic-gradient(#10b981 ${pct}%, #eaeaea 0)`;
         }
     }
 
