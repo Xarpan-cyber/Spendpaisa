@@ -366,11 +366,13 @@ canvas#balance-chart {
     transition: max-height 0.4s ease, opacity 0.3s ease;
 }
 
-.transaction-form-section:hover h2 {
+.transaction-form-section:hover h2,
+.transaction-form-section:focus-within h2 {
     margin-bottom: 20px;
 }
 
-.transaction-form-section:hover #transaction-form {
+.transaction-form-section:hover #transaction-form,
+.transaction-form-section:focus-within #transaction-form {
     max-height: 600px;
     opacity: 1;
 }
