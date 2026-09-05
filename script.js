@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Wait for chart section to enter (delay 0.6s) before drawing chart
                         setTimeout(() => {
                             drawChart(true);
+                            updateBudget();
                         }, 600);
                     });
                 });

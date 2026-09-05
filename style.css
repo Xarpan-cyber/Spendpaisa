@@ -147,13 +147,33 @@ canvas#balance-chart {
 }
 
 /* TRANSACTION FORM */
+/* Add Transaction */
 .transaction-form-section {
-    padding: 25px;
+    padding: 20px 25px;
+    cursor: pointer;
+    overflow: hidden;
 }
 
 .transaction-form-section h2 {
     font-size: 16px;
+    margin-bottom: 0;
+    transition: margin-bottom 0.3s ease;
+}
+
+#transaction-form {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.transaction-form-section:hover h2 {
     margin-bottom: 20px;
+}
+
+.transaction-form-section:hover #transaction-form {
+    max-height: 600px;
+    opacity: 1;
 }
 
 .form-group {
