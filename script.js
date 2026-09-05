@@ -73,8 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const container = canvas.parentElement;
         const rect = container.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        const dpr = window.devicePixelRatio || 1;
+        
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        
+        ctx.scale(dpr, dpr);
+        
+        const logicalWidth = rect.width;
+        const logicalHeight = rect.height;
 
         // Filter by date range
         let allTxns = getTransactions().slice();
@@ -117,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const paddingRight = 20;
         const paddingTop = 20;
         const paddingBottom = 30;
-        const drawWidth = canvas.width - paddingLeft - paddingRight;
-        const drawHeight = canvas.height - paddingTop - paddingBottom;
+        const drawWidth = logicalWidth - paddingLeft - paddingRight;
+        const drawHeight = logicalHeight - paddingTop - paddingBottom;
 
         const getX = (index) => paddingLeft + (txns.length === 0 ? drawWidth / 2 : (index / Math.max(1, txns.length)) * drawWidth);
         const getY = (val) => paddingTop + drawHeight - ((val - minBalance) / range) * drawHeight;
@@ -137,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (animationId) cancelAnimationFrame(animationId);
 
         function render() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, logicalWidth, logicalHeight);
 
             // Draw Y-Axis gridlines and labels
             ctx.fillStyle = '#9ca3af';
@@ -153,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // gridline
                 ctx.beginPath();
                 ctx.moveTo(paddingLeft - 5, y);
-                ctx.lineTo(canvas.width - paddingRight, y);
+                ctx.lineTo(logicalWidth - paddingRight, y);
                 ctx.strokeStyle = '#f3f4f6';
                 ctx.lineWidth = 1;
                 ctx.stroke();
@@ -167,10 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.textBaseline = 'top';
             if (txns.length > 0) {
                 // start date
-                ctx.fillText(new Date(txns[0].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(0), canvas.height - paddingBottom + 10);
+                ctx.fillText(new Date(txns[0].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(0), logicalHeight - paddingBottom + 10);
                 // end date
                 if (txns.length > 1) {
-                    ctx.fillText(new Date(txns[txns.length-1].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(txns.length), canvas.height - paddingBottom + 10);
+                    ctx.fillText(new Date(txns[txns.length-1].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(txns.length), logicalHeight - paddingBottom + 10);
                 }
             }
 
@@ -179,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const zeroY = getY(0);
                 ctx.beginPath();
                 ctx.moveTo(paddingLeft, zeroY);
-                ctx.lineTo(canvas.width - paddingRight, zeroY);
+                ctx.lineTo(logicalWidth - paddingRight, zeroY);
                 ctx.strokeStyle = '#e5e7eb';
                 ctx.lineWidth = 1;
                 ctx.stroke();
@@ -190,16 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const visibleSegments = progress * totalSegments;
 
                 // Create a hard-stop gradient for sharp, perfect color transitions
-                const grad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-                const areaGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+                const grad = ctx.createLinearGradient(0, 0, logicalWidth, 0);
+                const areaGrad = ctx.createLinearGradient(0, 0, logicalWidth, 0);
                 
                 for (let i = 0; i < totalSegments; i++) {
                     const seg = segments[i];
                     const color = seg.type === 'income' ? '#10b981' : '#ef4444';
                     const areaColor = seg.type === 'income' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
                     
-                    let startRatio = seg.x1 / canvas.width;
-                    let endRatio = seg.x2 / canvas.width;
+                    let startRatio = seg.x1 / logicalWidth;
+                    let endRatio = seg.x2 / logicalWidth;
                     
                     startRatio = Math.max(0, Math.min(1, startRatio));
                     endRatio = Math.max(0, Math.min(1, endRatio));
@@ -213,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 1. Draw Area Fill
                 ctx.beginPath();
-                ctx.moveTo(segments[0].x1, canvas.height);
+                ctx.moveTo(segments[0].x1, logicalHeight);
                 ctx.lineTo(segments[0].x1, segments[0].y1);
 
                 let lastX = segments[0].x1;
@@ -237,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     lastY = endY;
                 }
 
-                ctx.lineTo(lastX, canvas.height);
+                ctx.lineTo(lastX, logicalHeight);
                 ctx.closePath();
                 ctx.fillStyle = areaGrad;
                 ctx.shadowColor = 'transparent';
@@ -356,7 +365,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function getTransactions() {
-        return JSON.parse(localStorage.getItem('transactions') || '[]');
+        const stored = localStorage.getItem('transactions');
+        if (!stored) {
+            const sampleData = [
+                { id: "1", type: "income", category: "Other", description: "Salary", amount: "55000", date: "2026-09-01" },
+                { id: "2", type: "expense", category: "Rent", description: "Apartment Rent", amount: "15000", date: "2026-09-02" },
+                { id: "3", type: "expense", category: "Food", description: "Groceries", amount: "3500", date: "2026-09-03" },
+                { id: "4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: "1200", date: "2026-09-03" },
+                { id: "5", type: "expense", category: "Shopping", description: "Shoes", amount: "2500", date: "2026-09-04" },
+                { id: "6", type: "income", category: "Other", description: "Freelance Project", amount: "12000", date: "2026-09-05" },
+                { id: "7", type: "expense", category: "Transportation", description: "Gas", amount: "1000", date: "2026-09-06" }
+            ];
+            localStorage.setItem('transactions', JSON.stringify(sampleData));
+            return sampleData;
+        }
+        return JSON.parse(stored);
     }
 
     function saveTransactions(txns) {
@@ -376,6 +399,11 @@ document.addEventListener('DOMContentLoaded', () => {
         incomeEl.textContent = formatCurrency(income);
         expensesEl.textContent = formatCurrency(expenses);
         remainingEl.textContent = formatCurrency(balance);
+
+        const topSavingsEl = document.getElementById('top-savings-amount');
+        const topExpensesEl = document.getElementById('top-expenses-amount');
+        if (topSavingsEl) topSavingsEl.textContent = formatCurrency(balance);
+        if (topExpensesEl) topExpensesEl.textContent = formatCurrency(expenses);
 
         if (totalTxnsEl) {
             totalTxnsEl.textContent = txns.length;
@@ -614,6 +642,13 @@ document.addEventListener('DOMContentLoaded', () => {
         date.value = new Date().toISOString().slice(0, 10);
     });
 
-    if (!localStorage.getItem('transactions')) saveTransactions([]);
+    const resetDataBtn = document.getElementById('reset-data-btn');
+    if (resetDataBtn) {
+        resetDataBtn.addEventListener('click', () => {
+            localStorage.removeItem('transactions');
+            location.reload();
+        });
+    }
+
     renderTransactions(true);
 });
