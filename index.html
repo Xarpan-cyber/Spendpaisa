@@ -43,9 +43,12 @@
         <!-- =========================
          HEADER
     ========================== -->
-        <header>
-            <h1>💸 SpendPaisa</h1>
-            <p>Manage your income and expenses easily</p>
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <h1>💸 SpendPaisa</h1>
+                <p>Manage your income and expenses easily</p>
+            </div>
+            <button id="reset-data-btn" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 15px;">Reset Sample Data</button>
         </header>
 
         <!-- =========================
@@ -166,7 +169,7 @@
                                 Savings
                             </div>
                             <div class="top-overview-card-amount">
-                                <span>₹45,158.50</span>
+                                <span id="top-savings-amount">₹45,158.50</span>
                                 <div class="mini-chart" style="background: conic-gradient(#10b981 85%, #eaeaea 0);">
                                 </div>
                             </div>
@@ -181,7 +184,7 @@
                                 Expenses
                             </div>
                             <div class="top-overview-card-amount">
-                                <span>₹750.00</span>
+                                <span id="top-expenses-amount">₹750.00</span>
                                 <div class="mini-chart" style="background: conic-gradient(#10b981 5%, #eaeaea 0);">
                                 </div>
                             </div>
