@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => {
                             drawChart(true);
                             updateBudget();
+                            updateInsightsAndBills();
                         }, 600);
                     });
                 });
@@ -529,6 +530,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateInsightsAndBills() {
+        const insightText = document.getElementById('quick-insight-text');
+        const billsList = document.getElementById('upcoming-bills-list');
+        if (!insightText || !billsList) return;
+
+        // Quick Insight Logic
+        const txns = getTransactions();
+        let income = 0;
+        let expense = 0;
+        txns.forEach(t => {
+            if(t.type === 'income') income += Number(t.amount);
+            else expense += Number(t.amount);
+        });
+        
+        let net = income - expense;
+        if (txns.length === 0) {
+            insightText.innerHTML = "Add some transactions to see insights!";
+        } else if (net >= 0) {
+            insightText.innerHTML = `Great job! Your net cash flow is positive at <span class="insight-positive">₹${net.toLocaleString()}</span>.`;
+        } else {
+            insightText.innerHTML = `Watch out! Your spending exceeded income by <span class="insight-negative">₹${Math.abs(net).toLocaleString()}</span>.`;
+        }
+
+        // Upcoming Bills Logic
+        const mockBills = [
+            { name: "Rent", amount: 20000, dueDate: "2026-09-08" },
+            { name: "Utilities", amount: 5000, dueDate: "2026-09-15" },
+            { name: "Internet", amount: 1500, dueDate: "2026-09-22" }
+        ];
+
+        const now = new Date();
+        mockBills.sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+        
+        billsList.innerHTML = '';
+        mockBills.forEach(bill => {
+            const dueDate = new Date(bill.dueDate);
+            const diffDays = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+            
+            const isUrgent = diffDays >= 0 && diffDays <= 3;
+            const urgentClass = isUrgent ? 'bill-urgent' : '';
+            
+            const div = document.createElement('div');
+            div.className = 'bill-item ' + urgentClass;
+            div.innerHTML = `
+                <div class="bill-info">
+                    <div class="bill-icon">💸</div>
+                    <div class="bill-details">
+                        <h4>${bill.name}</h4>
+                        <p>Due ${dueDate.toLocaleDateString(undefined, {month:'short', day:'numeric'})}</p>
+                    </div>
+                </div>
+                <div class="bill-amount">₹${bill.amount.toLocaleString()}</div>
+            `;
+            billsList.appendChild(div);
+        });
+    }
+
     function renderTransactions(animate = false) {
         const txns = getTransactions();
         transactionList.querySelectorAll('.transaction').forEach(n => n.remove());
@@ -572,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateSummary();
         updateBudget();
+        updateInsightsAndBills();
         drawChart(animate);
     }
 
