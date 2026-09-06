@@ -362,31 +362,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    function getTransactions() {
-        const stored = localStorage.getItem('transactions');
-        if (!stored) {
-            const initialized = localStorage.getItem('appInitialized');
-            if (!initialized) {
-                const sampleData = [
-                    { id: "1", type: "income", category: "Other", description: "Salary", amount: "55000", date: "2026-09-01" },
-                    { id: "2", type: "expense", category: "Rent", description: "Apartment Rent", amount: "15000", date: "2026-09-02" },
-                    { id: "3", type: "expense", category: "Food", description: "Groceries", amount: "3500", date: "2026-09-03" },
-                    { id: "4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: "1200", date: "2026-09-03" },
-                    { id: "5", type: "expense", category: "Shopping", description: "Shoes", amount: "2500", date: "2026-09-04" },
-                    { id: "6", type: "income", category: "Other", description: "Freelance Project", amount: "12000", date: "2026-09-05" },
-                    { id: "7", type: "expense", category: "Transportation", description: "Gas", amount: "1000", date: "2026-09-06" }
-                ];
-                localStorage.setItem('transactions', JSON.stringify(sampleData));
-                localStorage.setItem('appInitialized', 'true');
-                return sampleData;
-            }
-            return [];
+    let transactions = [];
+
+    function getAppUserId() {
+        let uid = localStorage.getItem('appUserId');
+        if (!uid) {
+            uid = 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+            localStorage.setItem('appUserId', uid);
         }
-        return JSON.parse(stored);
+        return uid;
     }
 
-    function saveTransactions(txns) {
-        localStorage.setItem('transactions', JSON.stringify(txns));
+    async function loadTransactions() {
+        try {
+            const res = await fetch('/api/transactions', {
+                headers: { 'x-user-id': getAppUserId() }
+            });
+            transactions = await res.json();
+            renderTransactions(true);
+        } catch (error) {
+            console.error('Error loading transactions:', error);
+        }
+    }
+
+    function getTransactions() {
+        return transactions;
     }
 
     function formatCurrency(value) {
@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTransactions(animate = false) {
         const txns = getTransactions();
         transactionList.querySelectorAll('.transaction').forEach(n => n.remove());
-        
+
         updateSummary();
         updateBudget();
         drawChart(animate);
@@ -610,8 +610,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const del = document.createElement('button');
             del.textContent = 'Delete';
             del.className = 'btn-delete';
-            del.dataset.id = t.id;
-            del.addEventListener('click', () => deleteTransaction(t.id));
+            del.dataset.id = t._id;
+            del.addEventListener('click', () => deleteTransaction(t._id));
             delWrap.appendChild(del);
 
             el.appendChild(title);
@@ -623,17 +623,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function addTransaction(tx) {
-        const txns = getTransactions();
-        txns.push(tx);
-        saveTransactions(txns);
-        renderTransactions(true);
+    async function addTransaction(tx) {
+        try {
+            await fetch('/api/transactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-id': getAppUserId()
+                },
+                body: JSON.stringify(tx)
+            });
+            loadTransactions();
+        } catch (error) {
+            console.error('Error adding transaction:', error);
+        }
     }
 
-    function deleteTransaction(id) {
-        const txns = getTransactions().filter(t => t.id !== id);
-        saveTransactions(txns);
-        renderTransactions(false);
+    async function deleteTransaction(id) {
+        try {
+            await fetch(`/api/transactions/${id}`, {
+                method: 'DELETE',
+                headers: { 'x-user-id': getAppUserId() }
+            });
+            loadTransactions();
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
+        }
     }
 
     form.addEventListener('submit', e => {
@@ -648,7 +663,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const tx = {
-            id: Date.now().toString(),
             type,
             category: cat,
             description,
@@ -662,21 +676,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const clearDataBtn = document.getElementById('clear-data-btn');
     if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', () => {
-            localStorage.setItem('transactions', JSON.stringify([]));
-            localStorage.setItem('appInitialized', 'true');
-            renderTransactions(true);
+        clearDataBtn.addEventListener('click', async () => {
+            const originalText = clearDataBtn.textContent;
+            clearDataBtn.textContent = 'Clearing...';
+            clearDataBtn.disabled = true;
+
+            const bottomRow = document.querySelector('.dashboard-bottom-row');
+            const summarySec = document.querySelector('.summary-section');
+            if (bottomRow) bottomRow.classList.add('fade-out-anim');
+            if (summarySec) summarySec.classList.add('fade-out-anim');
+
+            // Wait for animation to visually fade out
+            await new Promise(resolve => setTimeout(resolve, 400));
+
+            try {
+                await fetch('/api/transactions', {
+                    method: 'DELETE',
+                    headers: { 'x-user-id': getAppUserId() }
+                });
+                await loadTransactions();
+            } catch (error) {
+                console.error('Error clearing data:', error);
+            } finally {
+                clearDataBtn.textContent = originalText;
+                clearDataBtn.disabled = false;
+
+                // Remove animation class after rendering new empty state
+                if (bottomRow) bottomRow.classList.remove('fade-out-anim');
+                if (summarySec) summarySec.classList.remove('fade-out-anim');
+            }
         });
     }
 
     const resetDataBtn = document.getElementById('reset-data-btn');
     if (resetDataBtn) {
         resetDataBtn.addEventListener('click', () => {
-            localStorage.removeItem('transactions');
-            localStorage.removeItem('appInitialized');
+            const sampleData = [
+                { _id: "sample1", type: "income", category: "Other", description: "Salary", amount: 55000, date: "2026-09-01" },
+                { _id: "sample2", type: "expense", category: "Rent", description: "Apartment Rent", amount: 15000, date: "2026-09-02" },
+                { _id: "sample3", type: "expense", category: "Food", description: "Groceries", amount: 3500, date: "2026-09-03" },
+                { _id: "sample4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: 1200, date: "2026-09-03" },
+                { _id: "sample5", type: "expense", category: "Shopping", description: "Shoes", amount: 2500, date: "2026-09-04" },
+                { _id: "sample6", type: "income", category: "Other", description: "Freelance Project", amount: 12000, date: "2026-09-05" },
+                { _id: "sample7", type: "expense", category: "Transportation", description: "Gas", amount: 1000, date: "2026-09-06" }
+            ];
+
+            transactions = sampleData;
             renderTransactions(true);
         });
     }
 
-    renderTransactions(true);
+    loadTransactions();
 });
