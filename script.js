@@ -74,14 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = canvas.parentElement;
         const rect = container.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        
+
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
         canvas.style.width = rect.width + 'px';
         canvas.style.height = rect.height + 'px';
-        
+
         ctx.scale(dpr, dpr);
-        
+
         const logicalWidth = rect.width;
         const logicalHeight = rect.height;
 
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (chartDateRange === '1m') limitDate.setMonth(now.getMonth() - 1);
             else if (chartDateRange === '3m') limitDate.setMonth(now.getMonth() - 3);
             else if (chartDateRange === '1y') limitDate.setFullYear(now.getFullYear() - 1);
-            
+
             txns = allTxns.filter(t => new Date(t.date) >= limitDate);
         }
 
@@ -153,12 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.font = '10px Inter, sans-serif';
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
-            
+
             const steps = 4;
             for (let i = 0; i <= steps; i++) {
                 const val = minBalance + (range * i) / steps;
                 const y = getY(val);
-                
+
                 // gridline
                 ctx.beginPath();
                 ctx.moveTo(paddingLeft - 5, y);
@@ -176,10 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.textBaseline = 'top';
             if (txns.length > 0) {
                 // start date
-                ctx.fillText(new Date(txns[0].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(0), logicalHeight - paddingBottom + 10);
+                ctx.fillText(new Date(txns[0].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), getX(0), logicalHeight - paddingBottom + 10);
                 // end date
                 if (txns.length > 1) {
-                    ctx.fillText(new Date(txns[txns.length-1].date).toLocaleDateString(undefined, {month:'short', day:'numeric'}), getX(txns.length), logicalHeight - paddingBottom + 10);
+                    ctx.fillText(new Date(txns[txns.length - 1].date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), getX(txns.length), logicalHeight - paddingBottom + 10);
                 }
             }
 
@@ -201,18 +201,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create a hard-stop gradient for sharp, perfect color transitions
                 const grad = ctx.createLinearGradient(0, 0, logicalWidth, 0);
                 const areaGrad = ctx.createLinearGradient(0, 0, logicalWidth, 0);
-                
+
                 for (let i = 0; i < totalSegments; i++) {
                     const seg = segments[i];
                     const color = seg.type === 'income' ? '#10b981' : '#ef4444';
                     const areaColor = seg.type === 'income' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-                    
+
                     let startRatio = seg.x1 / logicalWidth;
                     let endRatio = seg.x2 / logicalWidth;
-                    
+
                     startRatio = Math.max(0, Math.min(1, startRatio));
                     endRatio = Math.max(0, Math.min(1, endRatio));
-                    
+
                     grad.addColorStop(startRatio, color);
                     grad.addColorStop(endRatio, color);
 
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 for (let i = 0; i < totalSegments; i++) {
                     if (i >= Math.ceil(visibleSegments)) break;
-                    
+
                     const seg = segments[i];
                     let endX = seg.x2;
                     let endY = seg.y2;
@@ -255,10 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 2. Draw the main stroke with shadow
                 ctx.beginPath();
                 ctx.moveTo(segments[0].x1, segments[0].y1);
-                
+
                 for (let i = 0; i < totalSegments; i++) {
                     if (i >= Math.ceil(visibleSegments)) break;
-                    
+
                     const seg = segments[i];
                     let endX = seg.x2;
                     let endY = seg.y2;
@@ -274,9 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 ctx.strokeStyle = grad;
                 ctx.lineWidth = 3;
-                ctx.lineJoin = 'round'; 
+                ctx.lineJoin = 'round';
                 ctx.lineCap = 'round';
-                
+
                 // Add glow effect
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
                 ctx.shadowBlur = 12;
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 3. Draw Data Points (nodes)
                 ctx.shadowColor = 'transparent';
-                
+
                 const drawPoint = (x, y, type) => {
                     ctx.beginPath();
                     ctx.arc(x, y, 4.5, 0, Math.PI * 2);
@@ -319,16 +319,16 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.onmousemove = (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
-            
+
             // Find closest point
             let closest = null;
             let minDist = Infinity;
-            
+
             const allPoints = [];
             if (segments.length > 0) {
                 allPoints.push({ x: segments[0].x1, y: segments[0].y1, val: balances[0], date: txns.length > 0 ? txns[0].date : '' });
-                for(let i=0; i<segments.length; i++) {
-                    allPoints.push({ x: segments[i].x2, y: segments[i].y2, val: balances[i+1], date: txns[i].date });
+                for (let i = 0; i < segments.length; i++) {
+                    allPoints.push({ x: segments[i].x2, y: segments[i].y2, val: balances[i + 1], date: txns[i].date });
                 }
             }
 
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tooltip.style.opacity = '1';
                 tooltip.style.left = closest.x + 'px';
                 tooltip.style.top = closest.y + 'px';
-                const dateStr = closest.date ? new Date(closest.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}) : 'Start';
+                const dateStr = closest.date ? new Date(closest.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Start';
                 tooltip.innerHTML = `<div>${dateStr}</div><div style="font-weight:600; font-size:15px; margin-top:2px;">₹${closest.val.toLocaleString()}</div>`;
             } else if (tooltip) {
                 tooltip.style.opacity = '0';
@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const balanceChart = document.getElementById('mini-chart-balance');
 
         if (txnsChart) txnsChart.style.background = `conic-gradient(#6b7280 100%, #eaeaea 0)`;
-        
+
         if (incomeChart) incomeChart.style.background = `conic-gradient(#10b981 100%, #eaeaea 0)`;
 
         if (expensesChart) {
