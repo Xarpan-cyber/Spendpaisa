@@ -77,8 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         canvas.width = rect.width * dpr;
         canvas.height = rect.height * dpr;
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
 
         ctx.scale(dpr, dpr);
 
@@ -367,17 +365,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function getTransactions() {
         const stored = localStorage.getItem('transactions');
         if (!stored) {
-            const sampleData = [
-                { id: "1", type: "income", category: "Other", description: "Salary", amount: "55000", date: "2026-09-01" },
-                { id: "2", type: "expense", category: "Rent", description: "Apartment Rent", amount: "15000", date: "2026-09-02" },
-                { id: "3", type: "expense", category: "Food", description: "Groceries", amount: "3500", date: "2026-09-03" },
-                { id: "4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: "1200", date: "2026-09-03" },
-                { id: "5", type: "expense", category: "Shopping", description: "Shoes", amount: "2500", date: "2026-09-04" },
-                { id: "6", type: "income", category: "Other", description: "Freelance Project", amount: "12000", date: "2026-09-05" },
-                { id: "7", type: "expense", category: "Transportation", description: "Gas", amount: "1000", date: "2026-09-06" }
-            ];
-            localStorage.setItem('transactions', JSON.stringify(sampleData));
-            return sampleData;
+            const initialized = localStorage.getItem('appInitialized');
+            if (!initialized) {
+                const sampleData = [
+                    { id: "1", type: "income", category: "Other", description: "Salary", amount: "55000", date: "2026-09-01" },
+                    { id: "2", type: "expense", category: "Rent", description: "Apartment Rent", amount: "15000", date: "2026-09-02" },
+                    { id: "3", type: "expense", category: "Food", description: "Groceries", amount: "3500", date: "2026-09-03" },
+                    { id: "4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: "1200", date: "2026-09-03" },
+                    { id: "5", type: "expense", category: "Shopping", description: "Shoes", amount: "2500", date: "2026-09-04" },
+                    { id: "6", type: "income", category: "Other", description: "Freelance Project", amount: "12000", date: "2026-09-05" },
+                    { id: "7", type: "expense", category: "Transportation", description: "Gas", amount: "1000", date: "2026-09-06" }
+                ];
+                localStorage.setItem('transactions', JSON.stringify(sampleData));
+                localStorage.setItem('appInitialized', 'true');
+                return sampleData;
+            }
+            return [];
         }
         return JSON.parse(stored);
     }
@@ -429,16 +432,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const budgetLimits = {
-        'Food': 15000,
-        'Rent': 20000,
-        'Shopping': 10000,
-        'Utilities': 5000,
-        'Knowledge': 3000,
-        'Transportation': 8000,
-        'Entertainment': 6000,
-        'Investing': 20000,
-        'Other': 5000
+    const budgetPercentages = {
+        'Food': 15,
+        'Rent': 25,
+        'Shopping': 10,
+        'Utilities': 5,
+        'Knowledge': 5,
+        'Transportation': 10,
+        'Entertainment': 10,
+        'Investing': 15,
+        'Other': 5
     };
 
     const categoryIcons = {
@@ -465,6 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
 
+        const incomeThisMonth = txns.filter(t => {
+            if (t.type !== 'income') return false;
+            const d = new Date(t.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        }).reduce((s, t) => s + Number(t.amount), 0);
+
+        let baseIncome = incomeThisMonth;
+        if (baseIncome === 0) {
+            // Fallback to overall total income if no income this month yet
+            baseIncome = txns.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0);
+        }
+
         const categoryTotals = {};
         let totalExpenses = 0;
 
@@ -479,10 +494,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (budgetGrid) {
             budgetGrid.innerHTML = '';
 
-            Object.keys(budgetLimits).forEach(cat => {
-                const limit = budgetLimits[cat];
+            Object.keys(budgetPercentages).forEach(cat => {
+                const percent = budgetPercentages[cat];
+                const limit = Math.round((baseIncome * percent) / 100);
                 const spent = categoryTotals[cat] || 0;
-                let percentage = Math.min(100, Math.round((spent / limit) * 100));
+                let percentage = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : (spent > 0 ? 100 : 0);
 
                 // Color logic
                 let color = '#10b981'; // Green
@@ -562,6 +578,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTransactions(animate = false) {
         const txns = getTransactions();
         transactionList.querySelectorAll('.transaction').forEach(n => n.remove());
+        
+        updateSummary();
+        updateBudget();
+        drawChart(animate);
+
         if (!txns || txns.length === 0) {
             if (noTransactions) noTransactions.style.display = 'block';
             return;
@@ -600,9 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             transactionList.appendChild(el);
         });
-        updateSummary();
-        updateBudget();
-        drawChart(animate);
     }
 
     function addTransaction(tx) {
@@ -642,11 +660,21 @@ document.addEventListener('DOMContentLoaded', () => {
         date.value = new Date().toISOString().slice(0, 10);
     });
 
+    const clearDataBtn = document.getElementById('clear-data-btn');
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', () => {
+            localStorage.setItem('transactions', JSON.stringify([]));
+            localStorage.setItem('appInitialized', 'true');
+            renderTransactions(true);
+        });
+    }
+
     const resetDataBtn = document.getElementById('reset-data-btn');
     if (resetDataBtn) {
         resetDataBtn.addEventListener('click', () => {
             localStorage.removeItem('transactions');
-            location.reload();
+            localStorage.removeItem('appInitialized');
+            renderTransactions(true);
         });
     }
 
