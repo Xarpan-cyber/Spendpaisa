@@ -85,7 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Filter by date range
         let allTxns = getTransactions().slice();
+        // Ensure transactions are sorted chronologically
+        allTxns.sort((a, b) => new Date(a.date) - new Date(b.date));
+
         let txns = [];
+        let startingBalance = 0;
+
         if (chartDateRange === 'all') {
             txns = allTxns;
         } else {
@@ -97,12 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (chartDateRange === '1y') limitDate.setFullYear(now.getFullYear() - 1);
 
             txns = allTxns.filter(t => new Date(t.date) >= limitDate);
+
+            // Calculate starting balance from prior transactions
+            const priorTxns = allTxns.filter(t => new Date(t.date) < limitDate);
+            priorTxns.forEach(t => {
+                if (t.type === 'income') startingBalance += Number(t.amount);
+                else startingBalance -= Number(t.amount);
+            });
         }
 
-        let balances = [0];
-        let current = 0;
-        let minBalance = 0;
-        let maxBalance = 0;
+        let balances = [startingBalance];
+        let current = startingBalance;
+        let minBalance = startingBalance;
+        let maxBalance = startingBalance;
 
         const segments = [];
 
