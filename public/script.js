@@ -723,14 +723,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetDataBtn = document.getElementById('reset-data-btn');
     if (resetDataBtn) {
         resetDataBtn.addEventListener('click', () => {
+            const today = new Date();
+            const getPastDate = (daysAgo) => {
+                const d = new Date(today);
+                d.setDate(today.getDate() - daysAgo);
+                return d.toISOString().slice(0, 10);
+            };
+
             const sampleData = [
-                { _id: "sample1", type: "income", category: "Other", description: "Salary", amount: 55000, date: "2026-09-01" },
-                { _id: "sample2", type: "expense", category: "Rent", description: "Apartment Rent", amount: 15000, date: "2026-09-02" },
-                { _id: "sample3", type: "expense", category: "Food", description: "Groceries", amount: 3500, date: "2026-09-03" },
-                { _id: "sample4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: 1200, date: "2026-09-03" },
-                { _id: "sample5", type: "expense", category: "Shopping", description: "Shoes", amount: 2500, date: "2026-09-04" },
-                { _id: "sample6", type: "income", category: "Other", description: "Freelance Project", amount: 12000, date: "2026-09-05" },
-                { _id: "sample7", type: "expense", category: "Transportation", description: "Gas", amount: 1000, date: "2026-09-06" }
+                { _id: "sample1", type: "income", category: "Other", description: "Salary", amount: 55000, date: getPastDate(6) },
+                { _id: "sample2", type: "expense", category: "Rent", description: "Apartment Rent", amount: 15000, date: getPastDate(5) },
+                { _id: "sample3", type: "expense", category: "Food", description: "Groceries", amount: 3500, date: getPastDate(4) },
+                { _id: "sample4", type: "expense", category: "Utilities", description: "Electricity Bill", amount: 1200, date: getPastDate(4) },
+                { _id: "sample5", type: "expense", category: "Shopping", description: "Shoes", amount: 2500, date: getPastDate(3) },
+                { _id: "sample6", type: "income", category: "Other", description: "Freelance Project", amount: 12000, date: getPastDate(2) },
+                { _id: "sample7", type: "expense", category: "Transportation", description: "Gas", amount: 1000, date: getPastDate(1) }
             ];
 
             transactions = sampleData;
